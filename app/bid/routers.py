@@ -33,6 +33,9 @@ router = APIRouter(
 
 @router.post("/new")
 async def create_bid(bid: BidCreateSchema) -> BidSchema:
+    """
+    Создание предложения для существующего тендера.
+    """
     async with async_session_maker() as session:
         get_tender_query = select(Tender).where(
             Tender.id == bid.tender_id,
@@ -127,7 +130,16 @@ async def create_bid(bid: BidCreateSchema) -> BidSchema:
 
 
 @router.get("/my")
-async def get_user_bids(username: str, limit: int = 5, offset: int = 0):
+async def get_user_bids(
+    username: str,
+    limit: int = 5,
+    offset: int = 0,
+):
+    """
+    Получение списка предложений текущего пользователя.
+
+    Для удобства использования включена поддержка пагинации.
+    """
     async with async_session_maker() as session:
         user_query = select(User).where(User.username == username)
         user = await session.execute(user_query)
@@ -160,6 +172,12 @@ async def get_tender_bids(
     limit: int = 5,
     offset: int = 0,
 ) -> list[BidSchema]:
+    """
+    Получение предложений, связанных с указанным тендером.
+
+    Предложения показываются либо, если они имеют статус Published для пользователей отвественных за организацию, которая создала тендер,
+    либо для пользователя, ответственного за организацию, которая создала данное предложение.
+    """
     async with async_session_maker() as session:
         get_tender_query = select(Tender).where(
             and_(
@@ -215,7 +233,7 @@ async def get_tender_bids(
                     ),
                 ),
             )
-            .limit(6)
+            .limit(limit)
             .offset(offset)
         )
         subquery_publish = select(Bid).where(
@@ -234,6 +252,11 @@ async def get_bid_status(
     bid_id: uuid.UUID,
     username: str,
 ) -> BidStatusType:
+    """
+    Получить статус предложения по его уникальному идентификатору.
+
+    Предложение показывается для пользователя, ответственного за организацию, которая создала данное предложение. Если организации нет, то для пользователя создавшего данное предложение.
+    """
     async with async_session_maker() as session:
         user_query = select(User).where(User.username == username)
         user = await session.execute(user_query)
@@ -289,6 +312,11 @@ async def edit_bid_status(
     status: BidStatusType,
     username: str,
 ) -> BidSchema:
+    """
+    Изменить статус предложения по его уникальному идентификатору.
+
+    Предложение показывается для пользователя, ответственного за организацию, которая создала данное предложение. Если организации нет, то для пользователя создавшего данное предложение.
+    """
     async with async_session_maker() as session:
         user_query = select(User).where(User.username == username)
         user = await session.execute(user_query)
@@ -375,6 +403,11 @@ async def edit_bid(
     username: str,
     bid_update: BidUpdateSchema,
 ) -> BidSchema:
+    """
+    Редактирование существующего предложения.
+
+    Предложение может изменить пользователь, ответственный за организацию, которая создала данное предложение. Если организации нет, может изменить пользователь создавший данное предложение.
+    """
     async with async_session_maker() as session:
         user_query = select(User).where(User.username == username)
         user = await session.execute(user_query)
@@ -465,6 +498,11 @@ async def submit_bid_decision(
     decision: BidDecisionType,
     username: str,
 ):
+    """
+    Отправить решение (одобрить или отклонить) по предложению.
+
+    Данное решение принимает пользователь отвественный за организацию, которая создала тендер, если предложение статус Published.
+    """
     async with async_session_maker() as session:
         user_query = select(User).where(User.username == username)
         user = await session.execute(user_query)
@@ -575,6 +613,11 @@ async def bid_feedback(
     bid_feedback: str,
     username: str,
 ) -> BidSchema:
+    """
+    Отправить отзыв по предложению.
+
+    Фидбек отправляет пользователь отвественный за организацию, которая создала тендер, если предложение статус Published.
+    """
     async with async_session_maker() as session:
         user_query = select(User).where(User.username == username)
         user = await session.execute(user_query)
@@ -630,6 +673,9 @@ async def bid_rollback(
     version: int,
     username: str,
 ):
+    """
+    Откатить параметры предложения к указанной версии. Это считается новой правкой, поэтому версия инкрементируется.
+    """
     async with async_session_maker() as session:
         user_query = select(User).where(User.username == username)
         user = await session.execute(user_query)
@@ -721,6 +767,9 @@ async def tender_reviews(
     limit: int = 5,
     offset: int = 0,
 ) -> list[BidDecisionSchema]:
+    """
+    Ответственный за организацию может посмотреть прошлые отзывы на предложения автора, который создал предложение для его тендера.
+    """
     async with async_session_maker() as session:
         requester_user_query = select(User).where(User.username == requester_username)
         requester_user = await session.execute(requester_user_query)
