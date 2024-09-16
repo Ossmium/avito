@@ -11,7 +11,7 @@ router = APIRouter(
 )
 
 
-@router.get("")
+@router.get("", include_in_schema=False)
 async def users_list() -> list[UserSchema]:
     async with async_session_maker() as session:
         query = select(User)
@@ -19,7 +19,7 @@ async def users_list() -> list[UserSchema]:
         return result.scalars().all()
 
 
-@router.post("/new")
+@router.post("/new", include_in_schema=False)
 async def create_user(user: UserCreateSchema):
     async with async_session_maker() as session:
         query = insert(User).values(

@@ -8,7 +8,7 @@ from app.organization.schemas import OrganizationSchema, OrganizationResponsible
 router = APIRouter(prefix="/organizations", tags=["Organization"])
 
 
-@router.post("/new")
+@router.post("/new", include_in_schema=False)
 async def create_organization(organization: OrganizationSchema):
     async with async_session_maker() as session:
         query = insert(Organization).values(
@@ -20,7 +20,7 @@ async def create_organization(organization: OrganizationSchema):
         await session.commit()
 
 
-@router.post("/organization_responsible/new")
+@router.post("/organization_responsible/new", include_in_schema=False)
 async def create_organization_responsible(
     organization_responsible: OrganizationResponsibleSchema,
 ):
