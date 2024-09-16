@@ -229,7 +229,7 @@ async def change_tender_status(
     username: str,
 ):
     """
-    Получить статус тендера по его уникальному идентификатору.
+    Изменить статус тендера по его идентификатору.
     """
 
     async with async_session_maker() as session:
@@ -302,6 +302,9 @@ async def edit_tender(
     username: str,
     tender_update: TenderUpdate = None,
 ) -> TenderSchema:
+    """
+    Изменение параметров существующего тендера.
+    """
     async with async_session_maker() as session:
         user_query = select(User).where(User.username == username)
         user = await session.execute(user_query)
@@ -383,6 +386,9 @@ async def tender_rollback(
     version: int,
     username: str,
 ):
+    """
+    Откатить параметры тендера к указанной версии. Это считается новой правкой, поэтому версия инкрементируется.
+    """
     async with async_session_maker() as session:
         user_query = select(User).where(User.username == username)
         user = await session.execute(user_query)
