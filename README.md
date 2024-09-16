@@ -5,4 +5,4 @@
 3. Выполнить команду `docker run -d -p 8080:8080 <id_образа>`
 4. Перейти по адресу `http://localhost:8080/docs`
 
-Приложение подключено к БД PostgreSQL, данные которой вы выдавали, поэтому таблицы `employee`, `organization`, `organization_responsible` уже заполнены данными.
+Приложение подключено к БД PostgreSQL, данные которой вы выдавали, поэтому таблицы `employee`, `organization` и `organization_responsible` уже заполнены данными.
